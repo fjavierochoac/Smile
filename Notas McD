@@ -1,0 +1,60 @@
+;;desinstalar FortiClient.
+wmic product where "name like 'Forti%%'" call uninstall /nointeractive
+;;Ver marca, modelo, serie de un equipo
+wmic csproduct get vendor,name,identifyingnumber
+
+;;automatizar inicio de np6 en POS.
+start UpdtServiceExec.exe
+
+;;VM 2da generacion
+
+### create client generation 2 virtual machine ###
+New-VM -Name ATDGen2 -Path "C:\Hyper-V" -Generation 2 -SwitchName WiredLan
+Set-VM -Name ATDGen2 -ProcessorCount 2 -DynamicMemory -MemoryStartupBytes 512MB -MemoryMinimumBytes 512MB -MemoryMaximumBytes 2048MB
+New-VHD -Dynamic -SizeBytes 37GB -Path "C:\Hyper-V\ATDGen2\VirtualHardDisk\ATDGen2.vhdx"
+Add-VMHardDiskDrive -VMName ATDGen2 -Path "C:\Hyper-V\ATDGen2\VirtualHardDisk\ATDGen2.vhdx"
+Add-VMDvdDrive -VMName ATDGen2 -Path "D:\Software\Microsoft\Windows8.1Ent\en_windows_8_1_enterprise_x64_dvd_2791088.iso"
+Set-VM -Name ATDGen2 -AutomaticStartAction StartIfRunning -AutomaticStopAction ShutDown
+Start-VM -Name ATDGen2
+
+***********************************EJEMPLO BASE*****************************************
+New-VM -Name EC00022BOS -Path "D:\Virtual Machines BOS 02" -Generation 2 -SwitchName VLAN10
+Set-VM -Name EC00022BOS -ProcessorCount 4 -DynamicMemory -MemoryStartupBytes 6GB
+Add-VMHardDiskDrive -VMName EC00022BOS -Path "D:\virtual machines Bos 02\Virtual BOS VM C.vhdx"
+Add-VMHardDiskDrive -VMName ATDGen2 -Path "C:\Hyper-V\ATDGen2\VirtualHardDisk\ATDGen2.vhdx"
+Add-VMDvdDrive -VMName ATDGen2 -Path "D:\Software\Microsoft\Windows8.1Ent\en_windows_8_1_enterprise_x64_dvd_2791088.iso"
+Set-VM -Name EC00022BOS -AutomaticStartAction StartIfRunning -AutomaticStopAction ShutDown
+Start-VM -Name EC00022BOS
+
+********************* COMANDOS PRODUCTIVOS VM *****************************************
+;Revisar generacion de VM 
+
+get-vm | format-list Name,Generation
+;;
+
+New-VM -Name "GLOBAL SERVER VM" -path "D:\virtual machines GSC" -Generation 2 -MemoryStartupBytes 8GB
+add-VMHardDiskDrive -VMName "GLOBAL SERVER VM" -path "D:\virtual machines GSC\GLOBAL SERVER VM C.vhdx"
+add-VMHardDiskDrive -VMName "GLOBAL SERVER VM" -path "D:\virtual machines GSC\GLOBAL SERVER VM D.vhd"
+Add-VMNetworkAdapter -VMName "GLOBAL SERVER VM" -SwitchName vlan20
+
+************************CONVERTIR vhd A vhdx *****************************
+https://docs.microsoft.com/en-us/powershell/module/hyper-v/convert-vhd?view=windowsserver2022-ps
+;Se requiere la conversión de VHD a VHDX por compatibilidad entre generacion 1 y 2 de VM
+;VHD A VHDX
+
+Convert-VHD -Path c:\test\testvhd.vhd -DestinationPath c:\test\testvhdx.vhdx
+;
+Convert-VHD -Path c:\test\child1vhdx.vhdx -DestinationPath c:\test\child1vhd.vhd -VHDType Differencing -ParentPath c:\test\parentvhd.vhd
+
+;Reducir tamaño de disco.
+Resize-VHD -Path c:\BaseVHDX.vhdx -SizeBytes 20GB
+
+
+;;Para que solo se vea en el monitor principal 
+DisplaySwitch.exe /internal
+;;Para que solo se vea en el monitor secundario
+DisplaySwitch.exe /external
+;;Para que se vea en ambos lo mismo 
+DisplaySwitch.exe /clone
+;;Para que se extienda la imagen 
+DisplaySwitch.exe /extend
