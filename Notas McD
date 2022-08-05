@@ -1,11 +1,16 @@
+################################################################################################################################################
 ;;desinstalar FortiClient.
 wmic product where "name like 'Forti%%'" call uninstall /nointeractive
+
+################################################################################################################################################
 ;;Ver marca, modelo, serie de un equipo
 wmic csproduct get vendor,name,identifyingnumber
 
+################################################################################################################################################
 ;;automatizar inicio de np6 en POS.
 start UpdtServiceExec.exe
 
+################################################################################################################################################
 ;;VM 2da generacion
 
 ### create client generation 2 virtual machine ###
@@ -17,6 +22,7 @@ Add-VMDvdDrive -VMName ATDGen2 -Path "D:\Software\Microsoft\Windows8.1Ent\en_win
 Set-VM -Name ATDGen2 -AutomaticStartAction StartIfRunning -AutomaticStopAction ShutDown
 Start-VM -Name ATDGen2
 
+################################################################################################################################################
 ***********************************EJEMPLO BASE*****************************************
 New-VM -Name EC00022BOS -Path "D:\Virtual Machines BOS 02" -Generation 2 -SwitchName VLAN10
 Set-VM -Name EC00022BOS -ProcessorCount 4 -DynamicMemory -MemoryStartupBytes 6GB
@@ -26,6 +32,7 @@ Add-VMDvdDrive -VMName ATDGen2 -Path "D:\Software\Microsoft\Windows8.1Ent\en_win
 Set-VM -Name EC00022BOS -AutomaticStartAction StartIfRunning -AutomaticStopAction ShutDown
 Start-VM -Name EC00022BOS
 
+################################################################################################################################################
 ********************* COMANDOS PRODUCTIVOS VM *****************************************
 ;Revisar generacion de VM 
 
@@ -37,6 +44,7 @@ add-VMHardDiskDrive -VMName "GLOBAL SERVER VM" -path "D:\virtual machines GSC\GL
 add-VMHardDiskDrive -VMName "GLOBAL SERVER VM" -path "D:\virtual machines GSC\GLOBAL SERVER VM D.vhd"
 Add-VMNetworkAdapter -VMName "GLOBAL SERVER VM" -SwitchName vlan20
 
+################################################################################################################################################
 ************************CONVERTIR vhd A vhdx *****************************
 https://docs.microsoft.com/en-us/powershell/module/hyper-v/convert-vhd?view=windowsserver2022-ps
 ;Se requiere la conversión de VHD a VHDX por compatibilidad entre generacion 1 y 2 de VM
@@ -48,7 +56,10 @@ Convert-VHD -Path c:\test\child1vhdx.vhdx -DestinationPath c:\test\child1vhd.vhd
 
 ;Reducir tamaño de disco.
 Resize-VHD -Path c:\BaseVHDX.vhdx -SizeBytes 20GB
+;Aumentar tamaño de 
+Resize-VHD -Path 'I: \Windows10.vhdx -SizeBytes 100gb
 
+################################################################################################################################################
 
 ;;Para que solo se vea en el monitor principal 
 DisplaySwitch.exe /internal
@@ -58,3 +69,4 @@ DisplaySwitch.exe /external
 DisplaySwitch.exe /clone
 ;;Para que se extienda la imagen 
 DisplaySwitch.exe /extend
+################################################################################################################################################
